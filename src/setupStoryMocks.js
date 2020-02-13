@@ -1,9 +1,10 @@
-import React from 'react'
-import {makeDecorator} from '@storybook/addons'
-import {addDecorator} from '@storybook/react'
-
 import buildGetStoryProvider from './buildGetStoryProvider'
 import setupTestWiringBase from './setupTestWiring'
+import getSetupDecorator from './getSetupDecorator'
+
+const delay = ms => {
+  return new Promise(resolve => setTimeout(resolve, ms))
+}
 
 const setupStoryMocks = ({storyWrappers = []}) => {
   let currentFunctions = null
@@ -19,31 +20,45 @@ const setupStoryMocks = ({storyWrappers = []}) => {
       typeof mockedFunctionsBase === 'function'
         ? mockedFunctionsBase(currentFunctions)
         : mockedFunctionsBase
+    const delayAmount = mockedFunctions.DELAY_AMOUNT
     onMocksCreated()
-    Object.keys(mockedFunctions).forEach(funcName => {
-      currentFunctions[funcName] = (...args) => {
-        const returned = mockedFunctions[funcName]
-        onMockValueReturned(funcName, ...args)
-        return Promise.resolve(returned)
-      }
-    })
+    Object.keys(mockedFunctions)
+      .filter(funcName => funcName !== 'DELAY_AMOUNT')
+      .forEach(funcName => {
+        currentFunctions[funcName] = async (...args) => {
+          const getReturnValue = () => {
+            const mockValue = mockedFunctions[funcName]
+            if (typeof mockValue === 'function') {
+              return mockValue(...args)
+            }
+            return mockValue
+          }
+
+          const returned = getReturnValue()
+
+          const isObject = typeof returned === 'object' && returned !== null
+
+          const isError =
+            isObject &&
+            !!returned.TEST_ERROR &&
+            Object.keys(returned).length === 1
+          const resolveFunc = () =>
+            isError
+              ? Promise.reject(returned.TEST_ERROR)
+              : Promise.resolve(returned)
+
+          if (delayAmount) {
+            await delay(delayAmount)
+          }
+
+          onMockValueReturned(funcName, ...args)
+          return resolveFunc()
+        }
+      })
   }
 
   const getStoryProvider = buildGetStoryProvider(mock)
-  const setupDecorator = () => {
-    const StoryProvider = getStoryProvider(storyWrappers)
-    const withMocks = makeDecorator({
-      name: 'withMocks',
-      parameterName: 'mocks',
-      skipIfNoParametersOrOptions: false,
-      wrapper: (storyFn, context) => {
-        const {parameters = {}} = context
-        const {mocks} = parameters
-        return <StoryProvider {...mocks}>{storyFn(context)}</StoryProvider>
-      },
-    })
-    addDecorator(withMocks)
-  }
+  const setupDecorator = getSetupDecorator({storyWrappers, getStoryProvider})
 
   const setupTestWiring = storyWrappers => {
     return setupTestWiringBase({

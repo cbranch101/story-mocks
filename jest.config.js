@@ -1,6 +1,6 @@
 const {jest: jestConfig} = require('kcd-scripts/config')
 module.exports = Object.assign(jestConfig, {
-  testPathIgnorePatterns: ['<rootDir>/src/CounterList.js'],
+  coveragePathIgnorePatterns: ['<rootDir>/src/getSetupDecorator.js'],
   coverageThreshold: {
     global: {
       branches: 10,
