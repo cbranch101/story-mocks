@@ -1,0 +1,59 @@
+{
+    "name": "story-mocks",
+    "version": "0.0.0-semantically-released",
+    "description": "Easily mock external dependencies in Storybook and tests",
+    "main": "dist/index.js",
+    "module": "dist/story-mocks.esm.js",
+    "repository": "https://github.com/cbranch101/story-mocks",
+    "author": "Clay Branch",
+    "license": "MIT",
+    "private": false,
+    "scripts": {
+        "build": "kcd-scripts build --no-clean",
+        "test": "kcd-scripts test",
+        "validate": "kcd-scripts validate"
+    },
+    "devDependencies": {
+        "@testing-library/react": "^9.3.2",
+        "eslint-plugin-react": "^7.16.0",
+        "kcd-scripts": "^1.7.0",
+        "react": "16.9.0",
+        "react-dom": "16.9.0"
+    },
+    "peerDependencies": {
+        "@testing-library/react": "^9.3.2",
+        "react": "16.9.0",
+        "react-dom": "16.9.0"
+    },
+    "eslintIgnore": [
+        "node_modules",
+        "coverage",
+        "dist",
+        "*.d.ts"
+    ],
+    "eslintConfig": {
+        "extends": "./node_modules/kcd-scripts/eslint.js",
+        "plugins": [
+            "react"
+        ],
+        "rules": {
+            "react/prop-types": "off",
+            "no-useless-rename": "off",
+            "max-lines-per-function": "off",
+            "import/no-unassigned-import": "off",
+            "import/named": "off",
+            "no-shadow": "off",
+            "jsx-a11y/click-events-have-key-events": "off",
+            "react/display-name": "off"
+        },
+        "parserOptions": {
+            "ecmaFeatures": {
+                "experimentalObjectRestSpread": true
+            },
+            "ecmaVersion": 6
+        }
+    },
+    "dependencies": {
+        "@babel/runtime": "7.6.0"
+    }
+}
