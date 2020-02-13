@@ -1,1 +1,1 @@
-export default () => 'updated'
+export default () => 'updated-two'
