@@ -1,1 +1,3 @@
-export default () => 'updated-two'
+import setupStoryMocks from './setupStoryMocks'
+
+export {setupStoryMocks}

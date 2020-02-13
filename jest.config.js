@@ -3,10 +3,10 @@ module.exports = Object.assign(jestConfig, {
   testPathIgnorePatterns: ['<rootDir>/src/CounterList.js'],
   coverageThreshold: {
     global: {
-      branches: 70,
-      functions: 70,
+      branches: 10,
+      functions: 10,
       lines: 70,
-      statements: 70,
+      statements: 10,
     },
   },
 })
