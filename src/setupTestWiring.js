@@ -1,10 +1,7 @@
 import {wait, render as baseRender} from '@testing-library/react'
 import React from 'react'
 
-const capitalize = s => {
-  if (typeof s !== 'string') return ''
-  return s.charAt(0).toUpperCase() + s.slice(1)
-}
+const capitalize = s => s.charAt(0).toUpperCase() + s.slice(1)
 
 const setupTestWiring = ({storyWrappers, api, getStoryProvider}) => {
   let callStack = {}
@@ -39,11 +36,7 @@ const setupTestWiring = ({storyWrappers, api, getStoryProvider}) => {
       if (!callStack[callBackName]) {
         return undefined
       }
-      const funcArgs = callStack[callBackName][index].args
-      if (!funcArgs) {
-        return undefined
-      }
-      return [...funcArgs]
+      return callStack[callBackName][index].args
     }
 
     const waitForCallback = async (callbackName, desiredCall) => {
