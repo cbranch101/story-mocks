@@ -1,0 +1,9 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`setupStoryMocks helper when the value of mocked api function is a standard object that mocked object should be returned: args passed into getResponse 1`] = `
+Array [
+  "passed-into-response",
+]
+`;
+
+exports[`setupStoryMocks helper when the value of mocked api function is a standard object that mocked object should be returned: initial render 1`] = `mocked-response`;

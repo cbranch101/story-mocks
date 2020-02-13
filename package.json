@@ -14,11 +14,14 @@
         "validate": "kcd-scripts validate"
     },
     "devDependencies": {
+        "@storybook/addons": "^5.3.13",
+        "@storybook/react": "^5.3.13",
         "@testing-library/react": "^9.3.2",
         "eslint-plugin-react": "^7.16.0",
         "kcd-scripts": "^1.7.0",
         "react": "16.9.0",
-        "react-dom": "16.9.0"
+        "react-dom": "16.9.0",
+        "react-wiring-library": "^1.0.2"
     },
     "peerDependencies": {
         "@testing-library/react": "^9.3.2",
