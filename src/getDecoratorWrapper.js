@@ -1,7 +1,6 @@
 import React from 'react'
 
-const getDecoratorWrapper = ({getStoryProvider, storyWrappers, mapResults}) => {
-  const StoryProvider = getStoryProvider(storyWrappers, {mapResults})
+const getDecoratorWrapper = ({StoryProvider}) => {
   return (storyFn, context) => {
     const {parameters = {}} = context
     const {mocks} = parameters

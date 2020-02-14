@@ -1,6 +1,9 @@
 import React, {useEffect, useState} from 'react'
+import {render as baseRender} from '@testing-library/react'
+
 import {getRender} from 'react-wiring-library'
 import setupStoryMocks from '../setupStoryMocks'
+import getDecoratorWrapper from '../getDecoratorWrapper'
 
 const getStoryRender = ({
   storyWrappers,
@@ -8,6 +11,7 @@ const getStoryRender = ({
     getResponse: () => Promise.resolve('real-response'),
   },
   callWrap = true,
+  simulateStorybook,
   mapResults,
   mappedArgs,
 }) => {
@@ -18,7 +22,11 @@ const getStoryRender = ({
 
   const api = callWrap ? wrapApi(baseApi) : baseApi
 
-  const {wrapRender, getGlobalFunctions} = setupTestWiring({
+  const {
+    wrapRender: wrapRenderBase,
+    getGlobalFunctions,
+    StoryProvider,
+  } = setupTestWiring({
     storyWrappers,
     mappedArgs,
   })
@@ -62,6 +70,22 @@ const getStoryRender = ({
       },
     }
   }
+
+  const decoratorWrapper = getDecoratorWrapper({
+    StoryProvider,
+  })
+
+  // Because of the way storybook runs itself, there doesn't actually
+  // seem to be any way to run the the decorator added when calling addDecorator in preview.js in tests
+  // this is the closest I could get to actually testing that code
+  // Instead of running setupDecorator, we just wrap the same function
+  // that setupDecorator is eventually going to wrap
+  const simulatedStorybookRender = Story =>
+    baseRender(decoratorWrapper(Story, Story.story))
+
+  const wrapRender = simulateStorybook
+    ? simulatedStorybookRender
+    : wrapRenderBase
 
   const render = getRender(wiring, {
     render: wrapRender,

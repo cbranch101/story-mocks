@@ -68,11 +68,8 @@ const setupStoryMocks = ({storyWrappers = [], mapResults}) => {
   }
 
   const getStoryProvider = buildGetStoryProvider(mock)
-  const wrapper = getDecoratorWrapper({
-    getStoryProvider,
-    storyWrappers,
-    mapResults,
-  })
+  const StoryProvider = getStoryProvider(storyWrappers, {mapResults})
+  const wrapper = getDecoratorWrapper({StoryProvider})
   const setupDecorator = getSetupDecorator({
     wrapper,
   })
