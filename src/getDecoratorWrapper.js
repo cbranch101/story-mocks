@@ -1,9 +1,9 @@
 import React from 'react'
+import {getMocksFromStoryContext} from './helpers'
 
 const getDecoratorWrapper = ({StoryProvider}) => {
   return (storyFn, context) => {
-    const {parameters = {}} = context
-    const {mocks} = parameters
+    const mocks = getMocksFromStoryContext(context)
     return <StoryProvider {...mocks}>{storyFn(context)}</StoryProvider>
   }
 }
