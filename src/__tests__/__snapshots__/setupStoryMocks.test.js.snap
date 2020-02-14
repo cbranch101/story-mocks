@@ -1,5 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`setupStoryMocks helper when loading stories in the storybook environment mocks should behave the same as in tests: initial render 1`] = `mocked-response`;
+
 exports[`setupStoryMocks helper when mapResults is not passed when the entire passed in api is a function the return value of the function should behave like a normal api: initial render 1`] = `result-of-a-func-call`;
 
 exports[`setupStoryMocks helper when mapResults is not passed when the value of mocked api function is a function the result of calling that function should be returned: initial render 1`] = `passed-into-response-extra-stuff`;
