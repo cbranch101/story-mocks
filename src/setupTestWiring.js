@@ -4,10 +4,11 @@ import React from 'react'
 const capitalize = s => s.charAt(0).toUpperCase() + s.slice(1)
 
 const setupTestWiring = ({
-  storyWrappers,
+  storyWrappers = [],
   api,
   getStoryProvider,
   mapResults,
+  mappedArgs = {},
 }) => {
   let callStack = {}
   const StoryProvider = getStoryProvider(storyWrappers, {
@@ -68,7 +69,11 @@ const setupTestWiring = ({
     const waitForFuncs = Object.keys(api).reduce((memo, funcName) => {
       return {
         ...memo,
-        [`waitFor${capitalize(funcName)}`]: getWaitForFunc(funcName),
+        [`waitFor${capitalize(funcName)}`]: getWaitForFunc(
+          funcName,
+          undefined,
+          mappedArgs[funcName],
+        ),
       }
     }, {})
     return {

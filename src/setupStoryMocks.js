@@ -68,12 +68,13 @@ const setupStoryMocks = ({storyWrappers = [], mapResults}) => {
     mapResults,
   })
 
-  const setupTestWiring = storyWrappers => {
+  const setupTestWiring = ({storyWrappers, mappedArgs}) => {
     return setupTestWiringBase({
       storyWrappers,
       mapResults,
       api: currentFunctions,
       getStoryProvider,
+      mappedArgs,
     })
   }
 

@@ -8,6 +8,7 @@ const getStoryRender = ({
     getResponse: () => Promise.resolve('real-response'),
   },
   mapResults,
+  mappedArgs,
 }) => {
   const {wrapApi, setupTestWiring} = setupStoryMocks({
     storyWrappers,
@@ -16,7 +17,10 @@ const getStoryRender = ({
 
   const api = wrapApi(baseApi)
 
-  const {wrapRender, getGlobalFunctions} = setupTestWiring([])
+  const {wrapRender, getGlobalFunctions} = setupTestWiring({
+    storyWrappers,
+    mappedArgs,
+  })
 
   const DataFetcher = () => {
     const [response, setResponse] = useState([])
