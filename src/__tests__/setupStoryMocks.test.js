@@ -7,6 +7,7 @@ const getStoryRender = ({
   api: baseApi = {
     getResponse: () => Promise.resolve('real-response'),
   },
+  callWrap = true,
   mapResults,
   mappedArgs,
 }) => {
@@ -15,7 +16,7 @@ const getStoryRender = ({
     mapResults,
   })
 
-  const api = wrapApi(baseApi)
+  const api = callWrap ? wrapApi(baseApi) : baseApi
 
   const {wrapRender, getGlobalFunctions} = setupTestWiring({
     storyWrappers,
@@ -78,6 +79,20 @@ const getStoryRender = ({
 }
 
 describe('setupStoryMocks helper', () => {
+  describe('when running a test without calling wrapApi', () => {
+    test('should throw an error', () => {
+      const {renderStory, setApiInStory} = getStoryRender({
+        callWrap: false,
+      })
+      setApiInStory({getResponse: 'mocked-response'})
+      jest.spyOn(console, 'error')
+      console.error.mockImplementation(() => {}) // eslint-disable-line
+      expect(renderStory).toThrowError(
+        'Be sure to call wrapApi on your api before loading StoryMock stories or tests',
+      )
+      console.error.mockRestore() // eslint-disable-line
+    })
+  })
   describe('when mapResults is passed', () => {
     test('should call map results to update all returned mock results', async () => {
       const {renderStory, setApiInStory} = getStoryRender({

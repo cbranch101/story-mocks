@@ -15,6 +15,11 @@ const setupStoryMocks = ({storyWrappers = [], mapResults}) => {
   }
 
   const mock = (mockedFunctionsBase, options = {}) => {
+    if (currentFunctions === null) {
+      throw new Error(
+        'Be sure to call wrapApi on your api before loading StoryMock stories or tests',
+      )
+    }
     const {
       onMockValueReturned = () => {},
       onMocksCreated = () => {},
@@ -68,7 +73,8 @@ const setupStoryMocks = ({storyWrappers = [], mapResults}) => {
     mapResults,
   })
 
-  const setupTestWiring = ({storyWrappers, mappedArgs}) => {
+  const setupTestWiring = (options = {}) => {
+    const {mappedArgs, storyWrappers} = options
     return setupTestWiringBase({
       storyWrappers,
       mapResults,
