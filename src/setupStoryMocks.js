@@ -1,6 +1,7 @@
 import buildGetStoryProvider from './buildGetStoryProvider'
 import setupTestWiringBase from './setupTestWiring'
 import getSetupDecorator from './getSetupDecorator'
+import getDecoratorWrapper from './getDecoratorWrapper'
 
 const delay = ms => {
   return new Promise(resolve => setTimeout(resolve, ms))
@@ -67,10 +68,13 @@ const setupStoryMocks = ({storyWrappers = [], mapResults}) => {
   }
 
   const getStoryProvider = buildGetStoryProvider(mock)
-  const setupDecorator = getSetupDecorator({
-    storyWrappers,
+  const wrapper = getDecoratorWrapper({
     getStoryProvider,
+    storyWrappers,
     mapResults,
+  })
+  const setupDecorator = getSetupDecorator({
+    wrapper,
   })
 
   const setupTestWiring = (options = {}) => {
