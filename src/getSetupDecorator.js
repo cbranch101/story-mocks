@@ -2,8 +2,12 @@ import React from 'react'
 import {makeDecorator} from '@storybook/addons'
 import {addDecorator} from '@storybook/react'
 
-const setupDecorator = ({getStoryProvider, storyWrappers}) => () => {
-  const StoryProvider = getStoryProvider(storyWrappers)
+const setupDecorator = ({
+  getStoryProvider,
+  storyWrappers,
+  mapResults,
+}) => () => {
+  const StoryProvider = getStoryProvider(storyWrappers, {mapResults})
   const withMocks = makeDecorator({
     name: 'withMocks',
     parameterName: 'mocks',

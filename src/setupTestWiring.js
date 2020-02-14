@@ -3,9 +3,15 @@ import React from 'react'
 
 const capitalize = s => s.charAt(0).toUpperCase() + s.slice(1)
 
-const setupTestWiring = ({storyWrappers, api, getStoryProvider}) => {
+const setupTestWiring = ({
+  storyWrappers,
+  api,
+  getStoryProvider,
+  mapResults,
+}) => {
   let callStack = {}
   const StoryProvider = getStoryProvider(storyWrappers, {
+    mapResults,
     onMocksCreated: () => {
       callStack = {}
     },

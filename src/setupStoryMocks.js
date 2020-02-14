@@ -6,7 +6,7 @@ const delay = ms => {
   return new Promise(resolve => setTimeout(resolve, ms))
 }
 
-const setupStoryMocks = ({storyWrappers = []}) => {
+const setupStoryMocks = ({storyWrappers = [], mapResults}) => {
   let currentFunctions = null
 
   const wrapApi = functions => {
@@ -15,7 +15,11 @@ const setupStoryMocks = ({storyWrappers = []}) => {
   }
 
   const mock = (mockedFunctionsBase, options = {}) => {
-    const {onMockValueReturned = () => {}, onMocksCreated = () => {}} = options
+    const {
+      onMockValueReturned = () => {},
+      onMocksCreated = () => {},
+      mapResults = results => results,
+    } = options
     const mockedFunctions =
       typeof mockedFunctionsBase === 'function'
         ? mockedFunctionsBase(currentFunctions)
@@ -34,7 +38,7 @@ const setupStoryMocks = ({storyWrappers = []}) => {
             return mockValue
           }
 
-          const returned = getReturnValue()
+          const returned = mapResults(getReturnValue())
 
           const isObject = typeof returned === 'object' && returned !== null
 
@@ -58,11 +62,16 @@ const setupStoryMocks = ({storyWrappers = []}) => {
   }
 
   const getStoryProvider = buildGetStoryProvider(mock)
-  const setupDecorator = getSetupDecorator({storyWrappers, getStoryProvider})
+  const setupDecorator = getSetupDecorator({
+    storyWrappers,
+    getStoryProvider,
+    mapResults,
+  })
 
   const setupTestWiring = storyWrappers => {
     return setupTestWiringBase({
       storyWrappers,
+      mapResults,
       api: currentFunctions,
       getStoryProvider,
     })
