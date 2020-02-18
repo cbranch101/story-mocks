@@ -11,39 +11,49 @@ const renderStoryMocks = async ({
     getResponse: () => Promise.resolve('real-response'),
   },
   mocks = {getResponse: 'mocked-response'},
+  updateStory,
+  submitRequestsTwice = false,
   callWrap = true,
   simulateStorybook,
   mapResults,
   mappedArgs,
 }) => {
-  const {wrapApi, setupTestWiring} = setupStoryMocks({
+  const {wrapApi, setupTestWiring, StoryProvider} = setupStoryMocks({
     storyWrappers,
     mapResults,
   })
 
   const api = callWrap ? wrapApi(baseApi) : baseApi
 
-  const {
-    wrapRender: wrapRenderBase,
-    getGlobalFunctions,
-    StoryProvider,
-  } = setupTestWiring({
-    storyWrappers,
-    mappedArgs,
-  })
+  const callSetup = () =>
+    storyWrappers || mappedArgs
+      ? setupTestWiring({
+          storyWrappers,
+          mappedArgs,
+        })
+      : setupTestWiring()
+
+  const {wrapRender: wrapRenderBase, getGlobalFunctions} = callSetup()
 
   const DataFetcher = () => {
     const [response, setResponse] = useState([])
     useEffect(() => {
-      const getResponse = async () => {
+      const getResponse = async intoApi => {
         try {
-          const response = await api.getResponse('passed-into-response')
+          const response = await api.getResponse(intoApi)
           setResponse(response)
         } catch (e) {
           setResponse(`Error: ${e}`)
         }
       }
-      getResponse()
+      const handleCalls = async () => {
+        await getResponse('passed-into-response')
+        if (submitRequestsTwice) {
+          await getResponse('second-call')
+        }
+      }
+
+      handleCalls()
     }, [])
 
     const renderedResponse =
@@ -72,15 +82,19 @@ const renderStoryMocks = async ({
     }
   }
 
-  setApiInStory(mocks)
+  if (updateStory) {
+    updateStory(Story)
+  } else {
+    setApiInStory(mocks)
+  }
 
   const decoratorWrapper = getDecoratorWrapper({
     StoryProvider,
   })
 
   // Because of the way storybook runs itself, there doesn't actually
-  // seem to be any way to run the the decorator added when calling addDecorator in preview.js in tests
-  // this is the closest I could get to actually testing that code
+  // seem to be any way to run the decorator added when calling setupDecorator in preview.js in tests.
+  // This is the closest I could get to actually testing that code
   // Instead of running setupDecorator, we just wrap the same function
   // that setupDecorator is eventually going to wrap
   const simulatedStorybookRender = Story =>
@@ -107,6 +121,49 @@ const renderStoryMocks = async ({
 }
 
 describe('setupStoryMocks helper', () => {
+  describe('when a Story with no context is tested', () => {
+    test('the real api should be used', async () => {
+      const {response} = await renderStoryMocks({
+        // This ensure that Story.story isn't set at all
+        updateStory: () => {},
+      })
+      expect(response).toMatchSnapshot('initial render')
+    })
+  })
+  describe('when a waitFor function is called multiple times', () => {
+    test('should wait for the next call of the api', async () => {
+      const {waitForGetResponse} = await renderStoryMocks({
+        mocks: {getResponse: 'mocked-response'},
+        submitRequestsTwice: true,
+      })
+      const firstArgs = await waitForGetResponse()
+      expect(firstArgs).toMatchSnapshot('first call args')
+      const secondArgs = await waitForGetResponse()
+      expect(secondArgs).toMatchSnapshot('second call args')
+    })
+  })
+  describe('When a story with no parameters is tested', () => {
+    test('the real api should be used', async () => {
+      const {response} = await renderStoryMocks({
+        updateStory: Story => {
+          Story.story = {}
+        },
+      })
+      expect(response).toMatchSnapshot('initial render')
+    })
+  })
+  describe('When a story with no mocks is tested', () => {
+    test('the real api should be used', async () => {
+      const {response} = await renderStoryMocks({
+        updateStory: Story => {
+          Story.story = {
+            parameters: {},
+          }
+        },
+      })
+      expect(response).toMatchSnapshot('initial render')
+    })
+  })
   describe('when loading stories in the storybook environment', () => {
     test('mocks should behave the same as in tests', async () => {
       const {response} = await renderStoryMocks({

@@ -81,7 +81,7 @@ const setupTestWiring = ({
     }
   }
 
-  return {wrapRender, getGlobalFunctions, StoryProvider}
+  return {wrapRender, getGlobalFunctions}
 }
 
 export default setupTestWiring

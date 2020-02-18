@@ -1,5 +1,23 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`setupStoryMocks helper When a story with no mocks is tested the real api should be used: initial render 1`] = `real-response`;
+
+exports[`setupStoryMocks helper When a story with no parameters is tested the real api should be used: initial render 1`] = `real-response`;
+
+exports[`setupStoryMocks helper when a Story with no context is tested the real api should be used: initial render 1`] = `real-response`;
+
+exports[`setupStoryMocks helper when a waitFor function is called multiple times should wait for the next call of the api: first call args 1`] = `
+Array [
+  "passed-into-response",
+]
+`;
+
+exports[`setupStoryMocks helper when a waitFor function is called multiple times should wait for the next call of the api: second call args 1`] = `
+Array [
+  "second-call",
+]
+`;
+
 exports[`setupStoryMocks helper when loading stories in the storybook environment mocks should behave the same as in tests: initial render 1`] = `mocked-response`;
 
 exports[`setupStoryMocks helper when mapResults is not passed when the entire passed in api is a function the return value of the function should behave like a normal api: initial render 1`] = `result-of-a-func-call`;

@@ -15,7 +15,7 @@ const setupStoryMocks = ({storyWrappers = [], mapResults}) => {
     return functions
   }
 
-  const mock = (mockedFunctionsBase, options = {}) => {
+  const mock = (mockedFunctionsBase, options) => {
     if (currentFunctions === null) {
       throw new Error(
         'Be sure to call wrapApi on your api before loading StoryMock stories or tests',
@@ -89,6 +89,7 @@ const setupStoryMocks = ({storyWrappers = [], mapResults}) => {
     setupDecorator,
     wrapApi,
     setupTestWiring,
+    StoryProvider,
   }
 }
 
