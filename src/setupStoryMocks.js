@@ -1,12 +1,13 @@
 import buildGetStoryProvider from './buildGetStoryProvider'
 import setupTestWiringBase from './setupTestWiring'
 import getSetupDecorator from './getSetupDecorator'
+import getDecoratorWrapper from './getDecoratorWrapper'
 
 const delay = ms => {
   return new Promise(resolve => setTimeout(resolve, ms))
 }
 
-const setupStoryMocks = ({storyWrappers = []}) => {
+const setupStoryMocks = ({storyWrappers = [], mapResults}) => {
   let currentFunctions = null
 
   const wrapApi = functions => {
@@ -14,8 +15,17 @@ const setupStoryMocks = ({storyWrappers = []}) => {
     return functions
   }
 
-  const mock = (mockedFunctionsBase, options = {}) => {
-    const {onMockValueReturned = () => {}, onMocksCreated = () => {}} = options
+  const mock = (mockedFunctionsBase, options) => {
+    if (currentFunctions === null) {
+      throw new Error(
+        'Be sure to call wrapApi on your api before loading StoryMock stories or tests',
+      )
+    }
+    const {
+      onMockValueReturned = () => {},
+      onMocksCreated = () => {},
+      mapResults = results => results,
+    } = options
     const mockedFunctions =
       typeof mockedFunctionsBase === 'function'
         ? mockedFunctionsBase(currentFunctions)
@@ -34,7 +44,7 @@ const setupStoryMocks = ({storyWrappers = []}) => {
             return mockValue
           }
 
-          const returned = getReturnValue()
+          const returned = mapResults(getReturnValue())
 
           const isObject = typeof returned === 'object' && returned !== null
 
@@ -58,13 +68,20 @@ const setupStoryMocks = ({storyWrappers = []}) => {
   }
 
   const getStoryProvider = buildGetStoryProvider(mock)
-  const setupDecorator = getSetupDecorator({storyWrappers, getStoryProvider})
+  const StoryProvider = getStoryProvider(storyWrappers, {mapResults})
+  const wrapper = getDecoratorWrapper({StoryProvider})
+  const setupDecorator = getSetupDecorator({
+    wrapper,
+  })
 
-  const setupTestWiring = storyWrappers => {
+  const setupTestWiring = (options = {}) => {
+    const {mappedArgs, storyWrappers} = options
     return setupTestWiringBase({
       storyWrappers,
+      mapResults,
       api: currentFunctions,
       getStoryProvider,
+      mappedArgs,
     })
   }
 
@@ -72,6 +89,7 @@ const setupStoryMocks = ({storyWrappers = []}) => {
     setupDecorator,
     wrapApi,
     setupTestWiring,
+    StoryProvider,
   }
 }
 

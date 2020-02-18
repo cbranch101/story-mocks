@@ -1,17 +1,41 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`setupStoryMocks helper when the entire passed in api is a function the return value of the function should behave like a normal api: initial render 1`] = `result-of-a-func-call`;
+exports[`setupStoryMocks helper When a story with no mocks is tested the real api should be used: initial render 1`] = `real-response`;
 
-exports[`setupStoryMocks helper when the value of mocked api function is a function the result of calling that function should be returned: initial render 1`] = `passed-into-response-extra-stuff`;
+exports[`setupStoryMocks helper When a story with no parameters is tested the real api should be used: initial render 1`] = `real-response`;
 
-exports[`setupStoryMocks helper when the value of mocked api function is a standard object that mocked object should be returned: args passed into getResponse 1`] = `
+exports[`setupStoryMocks helper when a Story with no context is tested the real api should be used: initial render 1`] = `real-response`;
+
+exports[`setupStoryMocks helper when a waitFor function is called multiple times should wait for the next call of the api: first call args 1`] = `
 Array [
   "passed-into-response",
 ]
 `;
 
-exports[`setupStoryMocks helper when the value of mocked api function is a standard object that mocked object should be returned: initial render 1`] = `mocked-response`;
+exports[`setupStoryMocks helper when a waitFor function is called multiple times should wait for the next call of the api: second call args 1`] = `
+Array [
+  "second-call",
+]
+`;
 
-exports[`setupStoryMocks helper when the value of mocked api function is an object with a key of TEST_ERROR and other keys should return the response like normal: initial render 1`] = `{"TEST_ERROR":"error-message","otherKey":true}`;
+exports[`setupStoryMocks helper when loading stories in the storybook environment mocks should behave the same as in tests: initial render 1`] = `mocked-response`;
 
-exports[`setupStoryMocks helper when the value of mocked api function is an object with a single key of TEST_ERROR should cause the promise to reject with the provided error message: initial render 1`] = `Error: error-message`;
+exports[`setupStoryMocks helper when mapResults is not passed when the entire passed in api is a function the return value of the function should behave like a normal api: initial render 1`] = `result-of-a-func-call`;
+
+exports[`setupStoryMocks helper when mapResults is not passed when the value of mocked api function is a function the result of calling that function should be returned: initial render 1`] = `passed-into-response-extra-stuff`;
+
+exports[`setupStoryMocks helper when mapResults is not passed when the value of mocked api function is a standard object that mocked object should be returned: args passed into getResponse 1`] = `
+Array [
+  "passed-into-response",
+]
+`;
+
+exports[`setupStoryMocks helper when mapResults is not passed when the value of mocked api function is a standard object that mocked object should be returned: initial render 1`] = `mocked-response`;
+
+exports[`setupStoryMocks helper when mapResults is not passed when the value of mocked api function is an object with a key of TEST_ERROR and other keys should return the response like normal: initial render 1`] = `{"TEST_ERROR":"error-message","otherKey":true}`;
+
+exports[`setupStoryMocks helper when mapResults is not passed when the value of mocked api function is an object with a single key of TEST_ERROR should cause the promise to reject with the provided error message: initial render 1`] = `Error: error-message`;
+
+exports[`setupStoryMocks helper when mapResults is passed should call map results to update all returned mock results: initial render 1`] = `{"data":"mocked-response"}`;
+
+exports[`setupStoryMocks helper when mappedArgs is passed should call the provided function on the correct api call to process its arguments before returning them from waitFor function: processed args 1`] = `"passed-into-response-cleaned"`;

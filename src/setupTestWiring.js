@@ -1,11 +1,19 @@
 import {wait, render as baseRender} from '@testing-library/react'
 import React from 'react'
+import {getMocksFromStoryContext} from './helpers'
 
 const capitalize = s => s.charAt(0).toUpperCase() + s.slice(1)
 
-const setupTestWiring = ({storyWrappers, api, getStoryProvider}) => {
+const setupTestWiring = ({
+  storyWrappers = [],
+  api,
+  getStoryProvider,
+  mapResults,
+  mappedArgs = {},
+}) => {
   let callStack = {}
   const StoryProvider = getStoryProvider(storyWrappers, {
+    mapResults,
     onMocksCreated: () => {
       callStack = {}
     },
@@ -20,9 +28,8 @@ const setupTestWiring = ({storyWrappers, api, getStoryProvider}) => {
   })
 
   const wrapRender = Story => {
-    const storyObject = Story.story || {}
-    const {parameters = {}} = storyObject
-    const {mocks} = parameters
+    const context = Story.story || {}
+    const mocks = getMocksFromStoryContext(context)
     return baseRender(
       <StoryProvider {...mocks}>
         <Story />
@@ -62,7 +69,11 @@ const setupTestWiring = ({storyWrappers, api, getStoryProvider}) => {
     const waitForFuncs = Object.keys(api).reduce((memo, funcName) => {
       return {
         ...memo,
-        [`waitFor${capitalize(funcName)}`]: getWaitForFunc(funcName),
+        [`waitFor${capitalize(funcName)}`]: getWaitForFunc(
+          funcName,
+          undefined,
+          mappedArgs[funcName],
+        ),
       }
     }, {})
     return {
