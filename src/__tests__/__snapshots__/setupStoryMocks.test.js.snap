@@ -39,3 +39,5 @@ exports[`setupStoryMocks helper when mapResults is not passed when the value of 
 exports[`setupStoryMocks helper when mapResults is passed should call map results to update all returned mock results: initial render 1`] = `{"data":"mocked-response"}`;
 
 exports[`setupStoryMocks helper when mappedArgs is passed should call the provided function on the correct api call to process its arguments before returning them from waitFor function: processed args 1`] = `"passed-into-response-cleaned"`;
+
+exports[`setupStoryMocks helper when no args are passed to setupStoryMocks should use reasonable defaults: initial render 1`] = `mocked-response`;

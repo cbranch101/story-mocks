@@ -18,10 +18,13 @@ const renderStoryMocks = async ({
   mapResults,
   mappedArgs,
 }) => {
-  const {wrapApi, setupTestWiring, StoryProvider} = setupStoryMocks({
-    storyWrappers,
-    mapResults,
-  })
+  const {wrapApi, setupTestWiring, StoryProvider} =
+    storyWrappers || mapResults
+      ? setupStoryMocks({
+          storyWrappers,
+          mapResults,
+        })
+      : setupStoryMocks()
 
   const api = callWrap ? wrapApi(baseApi) : baseApi
 
@@ -124,8 +127,17 @@ describe('setupStoryMocks helper', () => {
   describe('when a Story with no context is tested', () => {
     test('the real api should be used', async () => {
       const {response} = await renderStoryMocks({
-        // This ensure that Story.story isn't set at all
+        // This ensures that Story.story isn't set at all
         updateStory: () => {},
+      })
+      expect(response).toMatchSnapshot('initial render')
+    })
+  })
+  describe('when no args are passed to setupStoryMocks', () => {
+    test('should use reasonable defaults', async () => {
+      const {response} = await renderStoryMocks({
+        mapResults: undefined,
+        storyWrappers: undefined,
       })
       expect(response).toMatchSnapshot('initial render')
     })
