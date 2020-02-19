@@ -7,7 +7,8 @@ const delay = ms => {
   return new Promise(resolve => setTimeout(resolve, ms))
 }
 
-const setupStoryMocks = ({storyWrappers = [], mapResults}) => {
+const setupStoryMocks = (options = {}) => {
+  const {storyWrappers = [], mapResults} = options
   let currentFunctions = null
 
   const wrapApi = functions => {
