@@ -1,20 +1,22 @@
 import React, {useMemo} from 'react'
 
-const buildGetStoryProvider = applyMock => (baseWrappers, mockOptions) => {
+const buildGetStoryProvider = (applyMock, context) => (
+  baseWrappers,
+  mockOptions,
+) => {
+  const {Provider} = context
   const Api = ({api: mockedApi, children}) => {
-    useMemo(() => {
-      applyMock(mockedApi, mockOptions)
-    }, [mockedApi])
-    return children
+    const api = useMemo(() => applyMock(mockedApi, mockOptions), [mockedApi])
+    return <Provider value={api}>{children}</Provider>
   }
   const wrappers = [
     ...baseWrappers,
     {
       component: Api,
-      shouldWrap: props => !!props.api,
+      shouldWrap: (props) => !!props.api,
     },
   ]
-  return props => {
+  return (props) => {
     const {children, ...remainingProps} = props
     return wrappers.reduceRight((memo, mock) => {
       const {component: Component, shouldWrap} = mock

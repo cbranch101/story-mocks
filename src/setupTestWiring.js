@@ -2,7 +2,7 @@ import {wait, render as baseRender} from '@testing-library/react'
 import React from 'react'
 import {getMocksFromStoryContext} from './helpers'
 
-const capitalize = s => s.charAt(0).toUpperCase() + s.slice(1)
+const capitalize = (s) => s.charAt(0).toUpperCase() + s.slice(1)
 
 const setupTestWiring = ({
   storyWrappers = [],
@@ -27,7 +27,7 @@ const setupTestWiring = ({
     },
   })
 
-  const wrapRender = Story => {
+  const wrapRender = (Story) => {
     const context = Story.story || {}
     const mocks = getMocksFromStoryContext(context)
     return baseRender(

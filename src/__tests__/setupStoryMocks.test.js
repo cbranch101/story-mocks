@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react'
+import React, {useEffect, useState, useContext} from 'react'
 import {render as baseRender} from '@testing-library/react'
 
 import {getRender} from 'react-wiring-library'
@@ -7,26 +7,30 @@ import getDecoratorWrapper from '../getDecoratorWrapper'
 
 const renderStoryMocks = async ({
   storyWrappers,
-  api: baseApi = {
-    getResponse: () => Promise.resolve('real-response'),
-  },
   mocks = {getResponse: 'mocked-response'},
   updateStory,
   submitRequestsTwice = false,
-  callWrap = true,
   simulateStorybook,
   mapResults,
   mappedArgs,
 }) => {
-  const {wrapApi, setupTestWiring, StoryProvider} =
+  const context = React.createContext(null)
+  const {setupTestWiring, StoryProvider} =
     storyWrappers || mapResults
       ? setupStoryMocks({
           storyWrappers,
+          api: {
+            getResponse: () => Promise.resolve('real-response'),
+          },
+          context,
           mapResults,
         })
-      : setupStoryMocks()
-
-  const api = callWrap ? wrapApi(baseApi) : baseApi
+      : setupStoryMocks({
+          context,
+          api: {
+            getResponse: () => Promise.resolve('real-response'),
+          },
+        })
 
   const callSetup = () =>
     storyWrappers || mappedArgs
@@ -40,8 +44,9 @@ const renderStoryMocks = async ({
 
   const DataFetcher = () => {
     const [response, setResponse] = useState([])
+    const api = useContext(context)
     useEffect(() => {
-      const getResponse = async intoApi => {
+      const getResponse = async (intoApi) => {
         try {
           const response = await api.getResponse(intoApi)
           setResponse(response)
@@ -68,14 +73,14 @@ const renderStoryMocks = async ({
     children: {
       response: {
         findValue: 'response',
-        serialize: val => val.textContent,
+        serialize: (val) => val.textContent,
       },
     },
   }
 
   const Story = () => <DataFetcher />
 
-  const setApiInStory = api => {
+  const setApiInStory = (api) => {
     Story.story = {
       parameters: {
         mocks: {
@@ -100,7 +105,7 @@ const renderStoryMocks = async ({
   // This is the closest I could get to actually testing that code
   // Instead of running setupDecorator, we just wrap the same function
   // that setupDecorator is eventually going to wrap
-  const simulatedStorybookRender = Story =>
+  const simulatedStorybookRender = (Story) =>
     baseRender(decoratorWrapper(Story, Story.story))
 
   const wrapRender = simulateStorybook
@@ -124,24 +129,6 @@ const renderStoryMocks = async ({
 }
 
 describe('setupStoryMocks helper', () => {
-  describe('when a Story with no context is tested', () => {
-    test('the real api should be used', async () => {
-      const {response} = await renderStoryMocks({
-        // This ensures that Story.story isn't set at all
-        updateStory: () => {},
-      })
-      expect(response).toMatchSnapshot('initial render')
-    })
-  })
-  describe('when no args are passed to setupStoryMocks', () => {
-    test('should use reasonable defaults', async () => {
-      const {response} = await renderStoryMocks({
-        mapResults: undefined,
-        storyWrappers: undefined,
-      })
-      expect(response).toMatchSnapshot('initial render')
-    })
-  })
   describe('when a waitFor function is called multiple times', () => {
     test('should wait for the next call of the api', async () => {
       const {waitForGetResponse} = await renderStoryMocks({
@@ -154,28 +141,6 @@ describe('setupStoryMocks helper', () => {
       expect(secondArgs).toMatchSnapshot('second call args')
     })
   })
-  describe('When a story with no parameters is tested', () => {
-    test('the real api should be used', async () => {
-      const {response} = await renderStoryMocks({
-        updateStory: Story => {
-          Story.story = {}
-        },
-      })
-      expect(response).toMatchSnapshot('initial render')
-    })
-  })
-  describe('When a story with no mocks is tested', () => {
-    test('the real api should be used', async () => {
-      const {response} = await renderStoryMocks({
-        updateStory: Story => {
-          Story.story = {
-            parameters: {},
-          }
-        },
-      })
-      expect(response).toMatchSnapshot('initial render')
-    })
-  })
   describe('when loading stories in the storybook environment', () => {
     test('mocks should behave the same as in tests', async () => {
       const {response} = await renderStoryMocks({
@@ -184,24 +149,10 @@ describe('setupStoryMocks helper', () => {
       expect(response).toMatchSnapshot('initial render')
     })
   })
-  describe('when running a test without calling wrapApi', () => {
-    test('should throw an error', async () => {
-      jest.spyOn(console, 'error')
-      console.error.mockImplementation(() => {}) // eslint-disable-line
-      await expect(
-        renderStoryMocks({
-          callWrap: false,
-        }),
-      ).rejects.toThrow(
-        'Be sure to call wrapApi on your api before loading StoryMock stories or tests',
-      )
-      console.error.mockRestore() // eslint-disable-line
-    })
-  })
   describe('when mapResults is passed', () => {
     test('should call map results to update all returned mock results', async () => {
       const {response} = await renderStoryMocks({
-        mapResults: results => ({
+        mapResults: (results) => ({
           data: results,
         }),
       })
@@ -215,7 +166,7 @@ describe('setupStoryMocks helper', () => {
       async () => {
         const {waitForGetResponse} = await renderStoryMocks({
           mappedArgs: {
-            getResponse: passedIn => `${passedIn}-cleaned`,
+            getResponse: (passedIn) => `${passedIn}-cleaned`,
           },
         })
         const args = await waitForGetResponse()
@@ -239,7 +190,7 @@ describe('setupStoryMocks helper', () => {
         test('the result of calling that function should be returned', async () => {
           const {response} = await renderStoryMocks({
             mocks: {
-              getResponse: passedIn => `${passedIn}-extra-stuff`,
+              getResponse: (passedIn) => `${passedIn}-extra-stuff`,
             },
           })
           expect(response).toMatchSnapshot('initial render')
