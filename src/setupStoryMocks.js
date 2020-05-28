@@ -1,10 +1,11 @@
+import React from 'react'
 import buildGetStoryProvider from './buildGetStoryProvider'
 import setupTestWiringBase from './setupTestWiring'
 import getSetupDecorator from './getSetupDecorator'
 import getDecoratorWrapper from './getDecoratorWrapper'
 
-const delay = (ms) => {
-  return new Promise((resolve) => setTimeout(resolve, ms))
+const delay = ms => {
+  return new Promise(resolve => setTimeout(resolve, ms))
 }
 
 const setupStoryMocks = (options = {}) => {
@@ -14,7 +15,7 @@ const setupStoryMocks = (options = {}) => {
     const {
       onMockValueReturned = () => {},
       onMocksCreated = () => {},
-      mapResults = (results) => results,
+      mapResults = results => results,
     } = options
     const mockedFunctions =
       typeof mockedFunctionsBase === 'function'
@@ -23,8 +24,8 @@ const setupStoryMocks = (options = {}) => {
     const delayAmount = mockedFunctions.DELAY_AMOUNT
     onMocksCreated()
     Object.keys(mockedFunctions)
-      .filter((funcName) => funcName !== 'DELAY_AMOUNT')
-      .forEach((funcName) => {
+      .filter(funcName => funcName !== 'DELAY_AMOUNT')
+      .forEach(funcName => {
         currentFunctions[funcName] = async (...args) => {
           const getReturnValue = () => {
             const mockValue = mockedFunctions[funcName]
@@ -66,18 +67,29 @@ const setupStoryMocks = (options = {}) => {
   })
 
   const setupTestWiring = (options = {}) => {
-    const {mappedArgs, storyWrappers} = options
+    const {mappedArgs, storyWrappers, handlers} = options
     return setupTestWiringBase({
       storyWrappers,
       mapResults,
+      handlers,
       api,
       getStoryProvider,
       mappedArgs,
     })
   }
 
+  const createStory = ({props = {}, mocks = {}, Component}) => {
+    const Story = testProps => <Component {...props} {...testProps} />
+    Story.story = Story.story || {}
+    Story.story.props = props
+    Story.story.parameters = Story.story.parameters || {}
+    Story.story.parameters.mocks = mocks
+    return Story
+  }
+
   return {
     setupDecorator,
+    createStory,
     setupTestWiring,
     StoryProvider,
   }

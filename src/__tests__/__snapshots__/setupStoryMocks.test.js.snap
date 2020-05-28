@@ -12,6 +12,14 @@ Array [
 ]
 `;
 
+exports[`setupStoryMocks helper when handlers is passed into setupTestWiring should be possible to call a waitForFunction for that handler: passed into onResponse 1`] = `
+Array [
+  Object {
+    "response": "mocked-response",
+  },
+]
+`;
+
 exports[`setupStoryMocks helper when loading stories in the storybook environment mocks should behave the same as in tests: initial render 1`] = `mocked-response`;
 
 exports[`setupStoryMocks helper when mapResults is not passed when the entire passed in api is a function the return value of the function should behave like a normal api: initial render 1`] = `result-of-a-func-call`;
