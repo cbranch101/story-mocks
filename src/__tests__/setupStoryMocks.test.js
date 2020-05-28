@@ -8,14 +8,14 @@ import getDecoratorWrapper from '../getDecoratorWrapper'
 const renderStoryMocks = async ({
   storyWrappers,
   mocks = {getResponse: 'mocked-response'},
-  updateStory,
   submitRequestsTwice = false,
+  handlers,
   simulateStorybook,
   mapResults,
   mappedArgs,
 }) => {
   const context = React.createContext(null)
-  const {setupTestWiring, StoryProvider} =
+  const {setupTestWiring, StoryProvider, createStory} =
     storyWrappers || mapResults
       ? setupStoryMocks({
           storyWrappers,
@@ -36,19 +36,21 @@ const renderStoryMocks = async ({
     storyWrappers || mappedArgs
       ? setupTestWiring({
           storyWrappers,
+          handlers,
           mappedArgs,
         })
-      : setupTestWiring()
+      : setupTestWiring({handlers})
 
   const {wrapRender: wrapRenderBase, getGlobalFunctions} = callSetup()
 
-  const DataFetcher = () => {
+  const DataFetcher = ({onResponse}) => {
     const [response, setResponse] = useState([])
     const api = useContext(context)
     useEffect(() => {
-      const getResponse = async (intoApi) => {
+      const getResponse = async intoApi => {
         try {
           const response = await api.getResponse(intoApi)
+          onResponse({response})
           setResponse(response)
         } catch (e) {
           setResponse(`Error: ${e}`)
@@ -73,28 +75,20 @@ const renderStoryMocks = async ({
     children: {
       response: {
         findValue: 'response',
-        serialize: (val) => val.textContent,
+        serialize: val => val.textContent,
       },
     },
   }
 
-  const Story = () => <DataFetcher />
-
-  const setApiInStory = (api) => {
-    Story.story = {
-      parameters: {
-        mocks: {
-          api,
-        },
-      },
-    }
-  }
-
-  if (updateStory) {
-    updateStory(Story)
-  } else {
-    setApiInStory(mocks)
-  }
+  const Story = createStory({
+    Component: DataFetcher,
+    props: {
+      onResponse: () => {},
+    },
+    mocks: {
+      api: mocks,
+    },
+  })
 
   const decoratorWrapper = getDecoratorWrapper({
     StoryProvider,
@@ -105,7 +99,7 @@ const renderStoryMocks = async ({
   // This is the closest I could get to actually testing that code
   // Instead of running setupDecorator, we just wrap the same function
   // that setupDecorator is eventually going to wrap
-  const simulatedStorybookRender = (Story) =>
+  const simulatedStorybookRender = Story =>
     baseRender(decoratorWrapper(Story, Story.story))
 
   const wrapRender = simulateStorybook
@@ -141,6 +135,16 @@ describe('setupStoryMocks helper', () => {
       expect(secondArgs).toMatchSnapshot('second call args')
     })
   })
+  describe('when handlers is passed into setupTestWiring', () => {
+    test('should be possible to call a waitForFunction for that handler', async () => {
+      const {waitForOnResponse} = await renderStoryMocks({
+        mocks: {getResponse: 'mocked-response'},
+        handlers: ['onResponse'],
+      })
+      const firstArgs = await waitForOnResponse()
+      expect(firstArgs).toMatchSnapshot('passed into onResponse')
+    })
+  })
   describe('when loading stories in the storybook environment', () => {
     test('mocks should behave the same as in tests', async () => {
       const {response} = await renderStoryMocks({
@@ -152,7 +156,7 @@ describe('setupStoryMocks helper', () => {
   describe('when mapResults is passed', () => {
     test('should call map results to update all returned mock results', async () => {
       const {response} = await renderStoryMocks({
-        mapResults: (results) => ({
+        mapResults: results => ({
           data: results,
         }),
       })
@@ -166,7 +170,7 @@ describe('setupStoryMocks helper', () => {
       async () => {
         const {waitForGetResponse} = await renderStoryMocks({
           mappedArgs: {
-            getResponse: (passedIn) => `${passedIn}-cleaned`,
+            getResponse: passedIn => `${passedIn}-cleaned`,
           },
         })
         const args = await waitForGetResponse()
@@ -190,7 +194,7 @@ describe('setupStoryMocks helper', () => {
         test('the result of calling that function should be returned', async () => {
           const {response} = await renderStoryMocks({
             mocks: {
-              getResponse: (passedIn) => `${passedIn}-extra-stuff`,
+              getResponse: passedIn => `${passedIn}-extra-stuff`,
             },
           })
           expect(response).toMatchSnapshot('initial render')
