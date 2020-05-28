@@ -81,7 +81,7 @@ const setupTestWiring = ({
 
   const wrapRender = Story => {
     const context = Story.story || {}
-    const {props} = context
+    const {props = {}} = context
     const mockHandlers = getMockHandlers(props)
     const mocks = getMocksFromStoryContext(context)
     return baseRender(
