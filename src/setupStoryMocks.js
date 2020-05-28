@@ -10,7 +10,7 @@ const delay = ms => {
 
 const setupStoryMocks = (options = {}) => {
   const {storyWrappers = [], mapResults, context, api} = options
-  let currentFunctions = {}
+  const currentFunctions = {}
   const mock = (mockedFunctionsBase, options) => {
     const {
       onMockValueReturned = () => {},
@@ -67,7 +67,7 @@ const setupStoryMocks = (options = {}) => {
   })
 
   const setupTestWiring = (options = {}) => {
-    const {mappedArgs, storyWrappers, handlers} = options
+    const {mappedArgs, handlers} = options
     return setupTestWiringBase({
       storyWrappers,
       mapResults,
