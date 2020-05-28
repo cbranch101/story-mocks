@@ -13,15 +13,15 @@ const buildGetStoryProvider = (applyMock, context) => (
     ...baseWrappers,
     {
       component: Api,
-      shouldWrap: (props) => !!props.api,
+      shouldWrap: props => !!props.api,
     },
   ]
-  return (props) => {
+  return props => {
     const {children, ...remainingProps} = props
     return wrappers.reduceRight((memo, mock) => {
       const {component: Component, shouldWrap} = mock
       if (!shouldWrap(remainingProps)) {
-        return children
+        return memo
       }
       return <Component {...remainingProps} children={memo} />
     }, children)
